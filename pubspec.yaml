@@ -1,7 +1,7 @@
 name: flutter_ccid
 description: "A Flutter plugin for smart card reader using CCID protocol."
 version: 0.0.1
-homepage:
+homepage: https://github.com/nfcim/flutter_ccid
 
 environment:
   sdk: '>=3.3.3 <4.0.0'

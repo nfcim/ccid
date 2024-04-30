@@ -38,6 +38,8 @@ jobs:
     name: build-${{ matrix.target }}
 
     steps:
+
+    # setup environment
     - uses: actions/checkout@v4
     - uses: actions/setup-java@v4
       if: ${{ matrix.target == 'android' }}
@@ -50,10 +52,16 @@ jobs:
         cache: true
     - name: Pre-build script for ${{ matrix.target }}
       run: ${{ matrix.pre-build }}
+
+    # basic format & linting check
     - run: dart pub get
     - run: dart format --output=none --set-exit-if-changed .
     - run: dart analyze
-    - run: flutter pub get
+
+    # build flutter app
+    - run: |
+        flutter pub get
+        flutter pub cache repair
       working-directory: example/
     - name: Run flutter build on ${{ matrix.target }}
       run: ${{ matrix.build-command }}
@@ -61,4 +69,4 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: example-${{ matrix.target }}-debug
-        path: ${{ matrix.artifact-path }}
+        path: example/${{ matrix.artifact-path }}

@@ -25,6 +25,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  charcode:
+    dependency: transitive
+    description:
+      name: charcode
+      sha256: fb98c0f6d12c920a02ee2d998da788bca066ca5f148492b7085ee23372b12306
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.1"
   clock:
     dependency: transitive
     description:
@@ -41,6 +49,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
+  convert:
+    dependency: transitive
+    description:
+      name: convert
+      sha256: "0f08b14755d163f6e2134cb58222dd25ea2a2ee8a195e53983d57c075324d592"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.1"
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      sha256: "706b5707578e0c1b4b7550f64078f0a0f19dec3f50a178ffae7006b0a9ca58fb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -116,6 +140,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  html:
+    dependency: transitive
+    description:
+      name: html
+      sha256: "3a7812d5bcd2894edf53dfaf8cd640876cf6cef50a8f238745c8b8120ea74d3a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.4"
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -193,6 +225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.4"
+  platform_detector:
+    dependency: transitive
+    description:
+      name: platform_detector
+      sha256: "5cd91ffd77b3dfce8061869e17a3f58bacbba7ebb3a935859f450db468a30468"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -270,6 +310,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.1"
+  typed_data:
+    dependency: transitive
+    description:
+      name: typed_data
+      sha256: facc8d6582f16042dd49f2463ff1bd6e2c9ef9f3d5da3d9b087e244a7b564b3c
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.2"
+  universal_html:
+    dependency: transitive
+    description:
+      name: universal_html
+      sha256: "56536254004e24d9d8cfdb7dbbf09b74cf8df96729f38a2f5c238163e3d58971"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.4"
+  universal_io:
+    dependency: transitive
+    description:
+      name: universal_io
+      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
   vector_math:
     dependency: transitive
     description:

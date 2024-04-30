@@ -1,7 +1,9 @@
+import 'package:platform_detector/platform_detector.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'flutter_ccid.dart';
 import 'flutter_ccid_method_channel.dart';
+import 'flutter_ccid_pcsc.dart';
 
 abstract class FlutterCcidPlatform extends PlatformInterface {
   /// Constructs a FlutterCcidPlatform.
@@ -9,19 +11,19 @@ abstract class FlutterCcidPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static FlutterCcidPlatform _instance = MethodChannelFlutterCcid();
+  static final FlutterCcidPlatform _methodChannelInstance = MethodChannelFlutterCcid();
+
+  static final FlutterCcidPlatform _pcscInstance = PcscFlutterCcid();
 
   /// The default instance of [FlutterCcidPlatform] to use.
   ///
   /// Defaults to [MethodChannelFlutterCcid].
-  static FlutterCcidPlatform get instance => _instance;
-
-  /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [FlutterCcidPlatform] when
-  /// they register themselves.
-  static set instance(FlutterCcidPlatform instance) {
-    PlatformInterface.verifyToken(instance, _token);
-    _instance = instance;
+  static FlutterCcidPlatform get instance {
+    if (isMobile() || isMacOs()) {
+      return _methodChannelInstance;
+    } else {
+      return _pcscInstance;
+    }
   }
 
   Future<List<String>> listReaders() {

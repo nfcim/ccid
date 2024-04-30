@@ -36,7 +36,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.flutter_ccid
+        package: im.nfc.ccid
         pluginClass: FlutterCcidPlugin
       ios:
         pluginClass: FlutterCcidPlugin

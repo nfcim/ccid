@@ -1,53 +1,147 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_ccid/flutter_ccid.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Smart Card Transceiver',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
-  final _flutterCcidPlugin = FlutterCcid();
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
 
-  Future<void> poll() async {
-    try {
-      var readers = await _flutterCcidPlugin.listReaders();
-      var reader = readers[0];
-      print(reader);
-      var card = await _flutterCcidPlugin.connect(reader);
-      // select fido applet
-      var rapdu = await card.transceive("00A4040008A0000006472F0001");
-      print(rapdu);
-      rapdu = await card.transceive("00A4040008A0000006472F0001");
-      print(rapdu);
-      await card.disconnect();
-    } on PlatformException {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final _flutterCcidPlugin = FlutterCcid();
+  FlutterCcidCard? _card;
+  String? _selectedReader;
+  List<String> _readers = [];
+  final _capduController = TextEditingController();
+  final _rapduController = TextEditingController();
+  final List<String> _history = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshReaders();
+  }
+
+  Future<void> _refreshReaders() async {
+    final readers = await _flutterCcidPlugin.listReaders();
+    setState(() {
+      _readers = readers;
+      _selectedReader = readers.isNotEmpty ? readers[0] : null;
+    });
+  }
+
+  Future<void> _connectCard() async {
+    if (_selectedReader != null) {
+      final card = await _flutterCcidPlugin.connect(_selectedReader!);
+      setState(() {
+        _card = card;
+      });
+    }
+  }
+
+  Future<void> _sendApdu() async {
+    if (_card != null) {
+      final rapdu = await _card!.transceive(_capduController.text);
+      setState(() {
+        _rapduController.text = rapdu ?? '';
+        _history.insert(0, 'C-APDU: ${_capduController.text}, R-APDU: $rapdu');
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: poll,
-            ),],
-        ),
-        body: const Center(
-          child: Text('Running...'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Smart Card Transceiver'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                DropdownButton<String>(
+                  value: _selectedReader,
+                  items: _readers.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedReader = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: _refreshReaders,
+                  child: const Text('Refresh'),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: _connectCard,
+                  child: const Text('Connect'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _capduController,
+              decoration: const InputDecoration(
+                labelText: 'C-APDU (hex)',
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _sendApdu,
+              child: const Text('Send APDU'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _rapduController,
+              decoration: const InputDecoration(
+                labelText: 'R-APDU',
+              ),
+              readOnly: true,
+            ),
+            const SizedBox(height: 16),
+            const Text('History:'),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _history.length,
+                itemBuilder: (context, index) {
+                  return Text(_history[index]);
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -18,7 +18,7 @@ jobs:
             pre-build: ""
           - target: linux
             os: ubuntu-latest
-            build-command: flutter build linux --verbose
+            build-command: flutter build linux --debug --verbose
             artifact-path: build/linux/x64/debug/bundle
             pre-build: |
               sudo apt-get update -y
@@ -31,7 +31,7 @@ jobs:
           - target: macos
             os: macos-latest
             build-command: flutter build macos --debug --verbose
-            artifact-path: build/macos/Build/Products/Debug/Runner.app
+            artifact-path: build/macos/Build/Products/Debug/flutter_ccid_example.app
             pre-build: ""
 
     runs-on: ${{ matrix.os }}
@@ -59,9 +59,7 @@ jobs:
     - run: dart analyze
 
     # build flutter app
-    - run: |
-        flutter pub get
-        flutter pub cache repair
+    - run: flutter pub get
       working-directory: example/
     - name: Run flutter build on ${{ matrix.target }}
       run: ${{ matrix.build-command }}

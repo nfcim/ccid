@@ -1,10 +1,15 @@
 # flutter_ccid
 
+[![Build Example App](https://github.com/nfcim/flutter_ccid/actions/workflows/example-app.yaml/badge.svg)](https://github.com/nfcim/flutter_ccid/actions/workflows/example-app.yaml)
+
 A Flutter plugin for reading and writing smart cards using the CCID protocol with PC/SC-like APIs.
 
 ## Installation
 
-1. Add `flutter_ccid` as a dependency in your `pubspec.yaml` file
-2. Run `flutter pub get`.
-3. (For Linux target) Install `pcsc-lite`: `sudo apt-get install pcscd libpcsclite1`.
-4. (For Linux / Windows target, **IMPORTANT**): Remove `flutter_ccid` from `FLUTTER_PLUGIN_LIST` in `linux/flutter/generated_plugins.cmake` and/or `windows/flutter/generated_plugins.cmake` since we use pure dart code on these platforms.
+### Android
+
+TODO: USB permission?
+
+### Linux
+
+This plugin uses `dart_pcsc`, thus has a runtime dependency on `pcsc-lite`: `sudo apt-get install pcscd libpcsclite1`.

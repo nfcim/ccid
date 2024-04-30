@@ -8,7 +8,6 @@ import 'flutter_ccid_platform_interface.dart';
 
 /// An implementation of [FlutterCcidPlatform] that uses dart_pcsc.
 class PcscFlutterCcid extends FlutterCcidPlatform {
-
   final context = Context(Scope.user);
   final readerCardMap = <String, Card>{};
 
@@ -39,9 +38,10 @@ class PcscFlutterCcid extends FlutterCcidPlatform {
   Future<void> disconnect(String reader) async {
     final card = readerCardMap.remove(reader);
     if (card != null) {
-      await card.disconnect(Disposition.resetCard).then((_) => context.release());
+      await card
+          .disconnect(Disposition.resetCard)
+          .then((_) => context.release());
     }
     return Future.value();
   }
-
 }

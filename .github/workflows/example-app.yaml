@@ -26,7 +26,7 @@ jobs:
           - target: windows
             os: windows-latest
             build-command: flutter build windows --debug --verbose
-            artifact-path: build/windows/runner
+            artifact-path: build/windows/x64/runner/Debug
             pre-build: ""
           - target: macos
             os: macos-latest

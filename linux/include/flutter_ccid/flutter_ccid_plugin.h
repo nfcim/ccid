@@ -1,26 +1,21 @@
 #ifndef FLUTTER_PLUGIN_FLUTTER_CCID_PLUGIN_H_
 #define FLUTTER_PLUGIN_FLUTTER_CCID_PLUGIN_H_
 
-#include <flutter_linux/flutter_linux.h>
-
-G_BEGIN_DECLS
-
 #ifdef FLUTTER_PLUGIN_IMPL
 #define FLUTTER_PLUGIN_EXPORT __attribute__((visibility("default")))
 #else
 #define FLUTTER_PLUGIN_EXPORT
 #endif
 
-typedef struct _FlutterCcidPlugin FlutterCcidPlugin;
-typedef struct {
-  GObjectClass parent_class;
-} FlutterCcidPluginClass;
-
-FLUTTER_PLUGIN_EXPORT GType flutter_ccid_plugin_get_type();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 FLUTTER_PLUGIN_EXPORT void flutter_ccid_plugin_register_with_registrar(
-    FlPluginRegistrar* registrar);
+    void* registrar);
 
-G_END_DECLS
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // FLUTTER_PLUGIN_FLUTTER_CCID_PLUGIN_H_

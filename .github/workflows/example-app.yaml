@@ -13,8 +13,8 @@ jobs:
         include:
           - target: android
             os: ubuntu-latest
-            build-command: flutter build apk --verbose
-            artifact-path: build/app/outputs/apk/release/app-debug.apk
+            build-command: flutter build apk --debug --verbose
+            artifact-path: build/app/outputs/apk/debug/app-debug.apk
             pre-build: ""
           - target: linux
             os: ubuntu-latest
@@ -30,8 +30,8 @@ jobs:
             pre-build: ""
           - target: macos
             os: macos-latest
-            build-command: flutter build macos --verbose
-            artifact-path: build/macos/Build/Products/Release/flutter_ccid_example.app
+            build-command: flutter build macos --debug --verbose
+            artifact-path: build/macos/Build/Products/Debug/flutter_ccid_example.app
             pre-build: ""
 
     runs-on: ${{ matrix.os }}
@@ -66,5 +66,5 @@ jobs:
       working-directory: example/
     - uses: actions/upload-artifact@v4
       with:
-        name: example-${{ matrix.target }}-debug
+        name: example-${{ matrix.target }}
         path: example/${{ matrix.artifact-path }}

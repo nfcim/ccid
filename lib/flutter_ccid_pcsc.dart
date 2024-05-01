@@ -47,11 +47,8 @@ class PcscFlutterCcid extends FlutterCcidPlatform {
   Future<void> disconnect(String reader) async {
     final card = readerCardMap.remove(reader);
     if (card != null) {
-      await card
-          .disconnect(Disposition.resetCard)
-          .then((_) => context.release());
+      await card.disconnect(Disposition.resetCard).then((_) => context.release());
     }
     return Future.value();
   }
-
 }

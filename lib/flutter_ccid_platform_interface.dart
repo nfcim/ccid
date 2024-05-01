@@ -11,8 +11,7 @@ abstract class FlutterCcidPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static final FlutterCcidPlatform _methodChannelInstance =
-      MethodChannelFlutterCcid();
+  static final FlutterCcidPlatform _methodChannelInstance = MethodChannelFlutterCcid();
 
   static final FlutterCcidPlatform _pcscInstance = PcscFlutterCcid();
 

@@ -35,8 +35,7 @@ class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                         }
                         val ccid = connectToInterface(device, reader.interfaceIdx)
                         if (ccid != null) {
-                            readers[reader.name] =
-                                Reader(reader.name, reader.interfaceIdx, ccid, null)
+                            readers[reader.name] = reader.copy(ccid = ccid, result = null)
                             reader.result!!.success(null)
                         } else {
                             reader.result!!.error(
@@ -66,14 +65,14 @@ class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             "connect" -> {
-                val reader = call.arguments as String
-                connect(reader, result)
+                val name = call.arguments as String
+                connect(name, result)
             }
 
             "transceive" -> {
-                val readerName = call.argument<String>("reader")!!
+                val name = call.argument<String>("reader")!!
                 val capdu = call.argument<String>("capdu")!!
-                val reader = readers[readerName]
+                val reader = readers[name]
                 if (reader == null) {
                     result.error("CCID_READER_NOT_FOUND", "Reader not found", null)
                     return
@@ -85,6 +84,16 @@ class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
                 val resp = ccid.xfrBlock(capdu.hexToByteArray())
                 result.success(resp.toHexString())
+            }
+
+            "disconnect" -> {
+                val name = call.arguments as String
+                val reader = readers[name]
+                if (reader == null) {
+                    result.error("CCID_READER_NOT_FOUND", "Reader not found", null)
+                    return
+                }
+                readers[name] = reader.copy(ccid = null)
             }
 
             else -> {
@@ -109,50 +118,70 @@ class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onDetachedFromActivity() {}
 
     private fun listReaders(): List<String> {
-        // TODO: readers with the same name
-        val readers = mutableListOf<String>()
+        val readerTree = mutableMapOf<String, MutableList<Reader>>()
 
         usbManager.deviceList.values.forEach { device ->
             (0 until device.interfaceCount).forEach { i ->
                 val usbInterface = device.getInterface(i)
                 if (usbInterface.interfaceClass == UsbConstants.USB_CLASS_CSCID) {
-                    readers.add(getDisplayName(device, usbInterface))
+                    val displayName = getDisplayName(device, usbInterface)
+                    val reader = Reader(displayName, device.deviceName, i, null, null)
+                    readerTree.getOrPut(displayName) { mutableListOf() }.add(reader)
                 }
             }
         }
 
-        return readers
+        readerTree.forEach { (name, list) ->
+            if (list.size > 1) {
+                list.forEachIndexed { index, reader ->
+                    readers["$name (${index + 1})"] = reader
+                }
+            } else {
+                readers[name] = list[0]
+            }
+        }
+
+        return readers.keys.toList()
     }
 
-    private fun connect(reader: String, result: Result) {
-        usbManager.deviceList.values.forEach { device ->
-            (0 until device.interfaceCount).forEach { i ->
-                val usbInterface = device.getInterface(i)
-                if (getDisplayName(device, usbInterface) == reader) {
-                    if (!usbManager.hasPermission(device)) {
-                        context.registerReceiver(usbReceiver, IntentFilter(ACTION_USB_PERMISSION))
+    private fun connect(name: String, result: Result) {
+        val reader = readers[name]
+        if (reader == null) {
+            result.error("CCID_READER_NOT_FOUND", "Reader not found", null)
+            return
+        }
+        val device =
+            usbManager.deviceList.filter { it.key == reader.deviceName }.values.firstOrNull()
+        if (device == null) {
+            result.error("CCID_READER_NOT_FOUND", "Reader not found", null)
+            return
+        }
 
-                        // Request permission
-                        readers[reader] = Reader(reader, i, null, result)
-                        val intent = Intent(ACTION_USB_PERMISSION)
-                        intent.identifier = reader
-                        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
-                        usbManager.requestPermission(device, pendingIntent)
+        if (reader.ccid != null) {
+            result.error("CCID_READER_ALREADY_CONNECTED", "Reader already connected", null)
+            return
+        }
 
-                        return
-                    } else {
-                        val ccid = connectToInterface(device, i)
-                        if (ccid != null) {
-                            readers[reader] = Reader(reader, i, ccid, null)
-                            result.success(null)
-                        } else {
-                            result.error("CCID_READER_CONNECT_ERROR", "Failed to connect", null)
-                        }
-                    }
-                }
+        if (!usbManager.hasPermission(device)) {
+            context.registerReceiver(usbReceiver, IntentFilter(ACTION_USB_PERMISSION))
+
+            // Request permission
+            readers[name] = reader.copy(result = result)
+            val intent = Intent(ACTION_USB_PERMISSION)
+            intent.identifier = name
+            val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
+            usbManager.requestPermission(device, pendingIntent)
+
+            return
+        } else {
+            val ccid = connectToInterface(device, reader.interfaceIdx)
+            if (ccid != null) {
+                readers[name] = reader.copy(ccid = ccid)
+                result.success(null)
+            } else {
+                result.error("CCID_READER_CONNECT_ERROR", "Failed to connect", null)
             }
         }
-        result.error("CCID_READER_NOT_FOUND", "Reader not found", null)
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -223,6 +252,7 @@ class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private data class Reader(
         val name: String,
+        val deviceName: String,
         val interfaceIdx: Int,
         val ccid: Ccid?,
         val result: Result?

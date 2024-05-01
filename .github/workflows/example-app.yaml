@@ -13,25 +13,25 @@ jobs:
         include:
           - target: android
             os: ubuntu-latest
-            build-command: flutter build apk --debug --verbose
-            artifact-path: build/app/outputs/apk/debug/app-debug.apk
+            build-command: flutter build apk --verbose
+            artifact-path: build/app/outputs/apk/release/app-debug.apk
             pre-build: ""
           - target: linux
             os: ubuntu-latest
-            build-command: flutter build linux --debug --verbose
-            artifact-path: build/linux/x64/debug/bundle
+            build-command: flutter build linux --verbose
+            artifact-path: build/linux/x64/release/bundle
             pre-build: |
               sudo apt-get update -y
               sudo apt-get install -y ninja-build libgtk-3-dev
           - target: windows
             os: windows-latest
-            build-command: flutter build windows --debug --verbose
-            artifact-path: build/windows/x64/runner/Debug
+            build-command: flutter build windows --verbose
+            artifact-path: build/windows/x64/runner/Release
             pre-build: ""
           - target: macos
             os: macos-latest
-            build-command: flutter build macos --debug --verbose
-            artifact-path: build/macos/Build/Products/Debug/flutter_ccid_example.app
+            build-command: flutter build macos --verbose
+            artifact-path: build/macos/Build/Products/Release/flutter_ccid_example.app
             pre-build: ""
 
     runs-on: ${{ matrix.os }}

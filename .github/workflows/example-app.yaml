@@ -15,7 +15,7 @@ jobs:
           - target: apk
             os: ubuntu-latest
             pre-build-script: ""
-            debug-artifact-path: build/app/outputs/apk/app-debug.apk
+            debug-artifact-path: build/app/outputs/flutter-apk/app-debug.apk
             release-artifact-path: build/app/outputs/flutter-apk/app-release.apk
           - target: linux
             os: ubuntu-latest

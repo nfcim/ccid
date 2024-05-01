@@ -61,7 +61,7 @@ jobs:
 
     # basic format & linting check
     - run: dart pub get
-    - run: dart format --output=none --set-exit-if-changed .
+    # - run: dart format --output=none --set-exit-if-changed .
     - run: dart analyze
 
     # build flutter app

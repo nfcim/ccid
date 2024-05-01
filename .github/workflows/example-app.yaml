@@ -38,11 +38,11 @@ jobs:
             artifact-path: |
               build/macos/Build/Products/Debug/Runner.app
               build/macos/Build/Products/Release/Runner.app
-          - target: ios
-            os: macos-latest
-            pre-build-script: ""
-            artifact-path: |
-              build/ios/iphoneos/Runner.app
+          # - target: ios
+          #   os: macos-latest
+          #   pre-build-script: ""
+          #   artifact-path: |
+          #     build/ios/iphoneos/Runner.app
 
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.target }}-${{ matrix.variant }}
@@ -52,7 +52,7 @@ jobs:
     # setup environment
     - uses: actions/checkout@v4
     - uses: actions/setup-java@v4
-      if: ${{ matrix.target == 'android' }}
+      if: ${{ matrix.target == 'apk' }}
       with:
         distribution: 'temurin'
         java-version: '17'

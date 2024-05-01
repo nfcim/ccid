@@ -10,9 +10,18 @@ import 'flutter_ccid_platform_interface.dart';
 class PcscFlutterCcid extends FlutterCcidPlatform {
   final context = Context(Scope.user);
   final readerCardMap = <String, Card>{};
+  var _initialized = false;
+
+  _init() async {
+    if (!_initialized) {
+      _initialized = true;
+      await context.establish();
+    }
+  }
 
   @override
   Future<List<String>> listReaders() async {
+    await _init();
     return await context.listReaders();
   }
 
@@ -44,4 +53,5 @@ class PcscFlutterCcid extends FlutterCcidPlatform {
     }
     return Future.value();
   }
+
 }

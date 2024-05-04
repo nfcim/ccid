@@ -11,11 +11,11 @@ allprojects {
     }
 }
 
-group 'im.nfc.flutter_ccid'
+group 'im.nfc.ccid'
 
 android {
     if (project.android.hasProperty("namespace")) {
-        namespace 'im.nfc.flutter_ccid'
+        namespace 'im.nfc.ccid'
     }
 
     compileSdk 34

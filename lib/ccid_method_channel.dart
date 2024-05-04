@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'flutter_ccid.dart';
-import 'flutter_ccid_platform_interface.dart';
+import 'ccid.dart';
+import 'ccid_platform_interface.dart';
 
-/// An implementation of [FlutterCcidPlatform] that uses method channels.
-class MethodChannelFlutterCcid extends FlutterCcidPlatform {
+/// An implementation of [CcidPlatform] that uses method channels.
+class MethodChannelCcid extends CcidPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
-  final methodChannel = const MethodChannel('flutter_ccid');
+  final methodChannel = const MethodChannel('ccid');
 
   @override
   Future<List<String>> listReaders() async {
@@ -17,8 +17,8 @@ class MethodChannelFlutterCcid extends FlutterCcidPlatform {
   }
 
   @override
-  Future<FlutterCcidCard> connect(String reader) {
-    return methodChannel.invokeMethod('connect', reader).then((value) => FlutterCcidCard(reader));
+  Future<CcidCard> connect(String reader) {
+    return methodChannel.invokeMethod('connect', reader).then((value) => CcidCard(reader));
   }
 
   @override

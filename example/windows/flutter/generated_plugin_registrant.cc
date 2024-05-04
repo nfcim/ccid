@@ -6,9 +6,9 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <flutter_ccid/flutter_ccid_plugin_c_api.h>
+#include <ccid/ccid_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  FlutterCcidPluginCApiRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("FlutterCcidPluginCApi"));
+  CcidPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("CcidPluginCApi"));
 }

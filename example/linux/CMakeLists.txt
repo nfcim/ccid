@@ -4,10 +4,10 @@ project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "flutter_ccid_example")
+set(BINARY_NAME "ccid_example")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "com.example.flutter_ccid")
+set(APPLICATION_ID "im.nfc.ccid")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -87,7 +87,7 @@ set_target_properties(${BINARY_NAME}
 )
 
 # Enable the test target.
-set(include_flutter_ccid_tests TRUE)
+set(include_ccid_tests TRUE)
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.

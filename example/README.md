@@ -1,6 +1,6 @@
-# flutter_ccid_example
+# ccid_example
 
-Demonstrates how to use the flutter_ccid plugin.
+Demonstrates how to use the ccid plugin.
 
 ## Getting Started
 

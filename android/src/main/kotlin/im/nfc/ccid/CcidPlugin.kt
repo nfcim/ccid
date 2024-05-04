@@ -15,12 +15,12 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
-/** FlutterCcidPlugin */
-class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+/** CcidPlugin */
+class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
     private lateinit var usbManager: UsbManager
-    private val readers = mutableMapOf<String, Reader>()
+    private var readers = mutableMapOf<String, Reader>()
 
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -53,7 +53,7 @@ class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_ccid")
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "ccid")
         channel.setMethodCallHandler(this)
     }
 
@@ -119,6 +119,7 @@ class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private fun listReaders(): List<String> {
         val readerTree = mutableMapOf<String, MutableList<Reader>>()
+        val newReaders = mutableMapOf<String, Reader>()
 
         usbManager.deviceList.values.forEach { device ->
             (0 until device.interfaceCount).forEach { i ->
@@ -134,13 +135,14 @@ class FlutterCcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         readerTree.forEach { (name, list) ->
             if (list.size > 1) {
                 list.forEachIndexed { index, reader ->
-                    readers["$name (${index + 1})"] = reader
+                    newReaders["$name (${index + 1})"] = reader
                 }
             } else {
-                readers[name] = list[0]
+                newReaders[name] = list[0]
             }
         }
 
+        readers = newReaders
         return readers.keys.toList()
     }
 

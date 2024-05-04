@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ccid/flutter_ccid.dart';
+import 'package:ccid/ccid.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,8 +28,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _flutterCcidPlugin = FlutterCcid();
-  FlutterCcidCard? _card;
+  final _ccidPlugin = Ccid();
+  CcidCard? _card;
   String? _selectedReader;
   List<String> _readers = [];
   final _capduController = TextEditingController();
@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _refreshReaders() async {
-    final readers = await _flutterCcidPlugin.listReaders();
+    final readers = await _ccidPlugin.listReaders();
     setState(() {
       _readers = readers;
       _selectedReader = readers.isNotEmpty ? readers[0] : null;
@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _connectCard() async {
     if (_selectedReader != null) {
-      final card = await _flutterCcidPlugin.connect(_selectedReader!);
+      final card = await _ccidPlugin.connect(_selectedReader!);
       setState(() {
         _card = card;
       });

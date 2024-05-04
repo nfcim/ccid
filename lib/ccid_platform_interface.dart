@@ -1,24 +1,24 @@
 import 'package:platform_detector/platform_detector.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'flutter_ccid.dart';
-import 'flutter_ccid_method_channel.dart';
-import 'flutter_ccid_pcsc.dart';
+import 'ccid.dart';
+import 'ccid_method_channel.dart';
+import 'ccid_pcsc.dart';
 
-abstract class FlutterCcidPlatform extends PlatformInterface {
-  /// Constructs a FlutterCcidPlatform.
-  FlutterCcidPlatform() : super(token: _token);
+abstract class CcidPlatform extends PlatformInterface {
+  /// Constructs a CcidPlatform.
+  CcidPlatform() : super(token: _token);
 
   static final Object _token = Object();
 
-  static final FlutterCcidPlatform _methodChannelInstance = MethodChannelFlutterCcid();
+  static final CcidPlatform _methodChannelInstance = MethodChannelCcid();
 
-  static final FlutterCcidPlatform _pcscInstance = PcscFlutterCcid();
+  static final CcidPlatform _pcscInstance = PcscCcid();
 
-  /// The default instance of [FlutterCcidPlatform] to use.
+  /// The default instance of [CcidPlatform] to use.
   ///
-  /// Defaults to [MethodChannelFlutterCcid].
-  static FlutterCcidPlatform get instance {
+  /// Defaults to [MethodChannelCcid].
+  static CcidPlatform get instance {
     if (isMobile() || isMacOs()) {
       return _methodChannelInstance;
     } else {
@@ -34,7 +34,7 @@ abstract class FlutterCcidPlatform extends PlatformInterface {
     throw UnimplementedError('transceive() has not been implemented.');
   }
 
-  Future<FlutterCcidCard> connect(String reader) {
+  Future<CcidCard> connect(String reader) {
     throw UnimplementedError('connect() has not been implemented.');
   }
 

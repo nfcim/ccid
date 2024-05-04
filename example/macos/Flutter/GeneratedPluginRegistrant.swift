@@ -5,8 +5,8 @@
 import FlutterMacOS
 import Foundation
 
-import flutter_ccid
+import ccid
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  FlutterCcidPlugin.register(with: registry.registrar(forPlugin: "FlutterCcidPlugin"))
+  CcidPlugin.register(with: registry.registrar(forPlugin: "CcidPlugin"))
 }

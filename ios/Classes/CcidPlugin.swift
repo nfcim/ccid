@@ -25,12 +25,12 @@ extension Data {
     }
 }
 
-public class FlutterCcidPlugin: NSObject, FlutterPlugin {
+public class CcidPlugin: NSObject, FlutterPlugin {
     var cards: [String: TKSmartCard] = [:]
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "flutter_ccid", binaryMessenger: registrar.messenger())
-        let instance = FlutterCcidPlugin()
+        let channel = FlutterMethodChannel(name: "ccid", binaryMessenger: registrar.messenger())
+        let instance = CcidPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 

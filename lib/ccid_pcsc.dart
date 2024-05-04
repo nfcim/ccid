@@ -3,11 +3,11 @@ import 'package:dart_pcsc/dart_pcsc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'flutter_ccid.dart';
-import 'flutter_ccid_platform_interface.dart';
+import 'ccid.dart';
+import 'ccid_platform_interface.dart';
 
-/// An implementation of [FlutterCcidPlatform] that uses dart_pcsc.
-class PcscFlutterCcid extends FlutterCcidPlatform {
+/// An implementation of [CcidPlatform] that uses dart_pcsc.
+class PcscCcid extends CcidPlatform {
   final context = Context(Scope.user);
   final readerCardMap = <String, Card>{};
   var _initialized = false;
@@ -26,10 +26,10 @@ class PcscFlutterCcid extends FlutterCcidPlatform {
   }
 
   @override
-  Future<FlutterCcidCard> connect(String reader) async {
+  Future<CcidCard> connect(String reader) async {
     final card = await context.connect(reader, ShareMode.shared, Protocol.any);
     readerCardMap[reader] = card;
-    return FlutterCcidCard(reader);
+    return CcidCard(reader);
   }
 
   @override

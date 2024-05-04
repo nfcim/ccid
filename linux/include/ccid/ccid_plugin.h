@@ -1,5 +1,5 @@
-#ifndef FLUTTER_PLUGIN_ccid_PLUGIN_H_
-#define FLUTTER_PLUGIN_ccid_PLUGIN_H_
+#ifndef FLUTTER_PLUGIN_CCID_PLUGIN_H_
+#define FLUTTER_PLUGIN_CCID_PLUGIN_H_
 
 #ifdef FLUTTER_PLUGIN_IMPL
 #define FLUTTER_PLUGIN_EXPORT __attribute__((visibility("default")))
@@ -18,4 +18,4 @@ FLUTTER_PLUGIN_EXPORT void ccid_plugin_register_with_registrar(
 }
 #endif
 
-#endif  // FLUTTER_PLUGIN_ccid_PLUGIN_H_
+#endif  // FLUTTER_PLUGIN_CCID_PLUGIN_H_

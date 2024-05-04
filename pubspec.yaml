@@ -1,5 +1,5 @@
 name: ccid
-description: "A Flutter plugin for smart card reader using CCID protocol."
+description: "A Flutter plugin for smart card reader using CCID protocol with PC/SC-like APIs."
 version: 0.1.0
 homepage: https://github.com/nfcim/ccid
 

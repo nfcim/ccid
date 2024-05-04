@@ -18,12 +18,15 @@ class MethodChannelCcid extends CcidPlatform {
 
   @override
   Future<CcidCard> connect(String reader) {
-    return methodChannel.invokeMethod('connect', reader).then((value) => CcidCard(reader));
+    return methodChannel
+        .invokeMethod('connect', reader)
+        .then((value) => CcidCard(reader));
   }
 
   @override
   Future<String?> transceive(String reader, String capdu) async {
-    final result = await methodChannel.invokeMethod<String>('transceive', <String, dynamic>{
+    final result = await methodChannel
+        .invokeMethod<String>('transceive', <String, dynamic>{
       'reader': reader,
       'capdu': capdu,
     });

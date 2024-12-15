@@ -165,13 +165,22 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         if (!usbManager.hasPermission(device)) {
-            context.registerReceiver(usbReceiver, IntentFilter(ACTION_USB_PERMISSION))
+            context.registerReceiver(
+                usbReceiver,
+                IntentFilter(ACTION_USB_PERMISSION),
+                Context.RECEIVER_NOT_EXPORTED
+            )
 
             // Request permission
             readers[name] = reader.copy(result = result)
             val intent = Intent(ACTION_USB_PERMISSION)
             intent.identifier = name
-            val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
             usbManager.requestPermission(device, pendingIntent)
 
             return

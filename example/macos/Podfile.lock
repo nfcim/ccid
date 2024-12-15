@@ -1,5 +1,5 @@
 PODS:
-  - ccid (0.0.1):
+  - ccid (0.1.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
 
@@ -14,9 +14,9 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
 
 SPEC CHECKSUMS:
-  ccid: 2d612bdab470b7cf7a28fa70292deb13dc1b7320
+  ccid: 27d2241987cf780c752a5567dc07cceaa226fcde
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
 
 PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

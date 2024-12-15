@@ -1,3 +1,7 @@
+## 0.1.2
+
+* Fix Android 14's compatibility issue.
+
 ## 0.1.1
 
 * Fix the pod name for iOS.

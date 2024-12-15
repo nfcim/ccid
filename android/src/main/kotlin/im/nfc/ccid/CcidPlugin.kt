@@ -25,6 +25,7 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == ACTION_USB_PERMISSION) {
+                println("Intent!")
                 val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                     device?.apply {
@@ -33,6 +34,7 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                             Log.e(TAG, "Reader not found")
                             return
                         }
+                        println("reader: $reader")
                         val ccid = connectToInterface(device, reader.interfaceIdx)
                         if (ccid != null) {
                             readers[reader.name] = reader.copy(ccid = ccid, result = null)
@@ -168,7 +170,7 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             context.registerReceiver(
                 usbReceiver,
                 IntentFilter(ACTION_USB_PERMISSION),
-                Context.RECEIVER_NOT_EXPORTED
+                Context.RECEIVER_EXPORTED
             )
 
             // Request permission

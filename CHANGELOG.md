@@ -1,3 +1,7 @@
+## 0.1.3
+
+* Use RECEIVER_EXPORTED for broadcast
+
 ## 0.1.2
 
 * Fix Android 14's compatibility issue.

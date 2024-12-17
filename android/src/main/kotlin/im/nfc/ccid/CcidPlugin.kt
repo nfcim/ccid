@@ -53,6 +53,17 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     }
                 }
             }
+            if (intent.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
+                synchronized(this) {
+                    val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    device?.let { detachedDevice ->
+                        readers.entries.removeIf { (_, reader) ->
+                            reader.deviceName == detachedDevice.deviceName
+                        }
+                        Log.d(TAG, "USB device detached: $detachedDevice")
+                    }
+                }
+            }
         }
     }
 
@@ -120,6 +131,7 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         } else {
             context.registerReceiver(usbReceiver, IntentFilter(ACTION_USB_PERMISSION))
         }
+        context.registerReceiver(usbReceiver, IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED))
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
@@ -150,6 +162,12 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             } else {
                 newReaders[name] = list[0]
+            }
+        }
+
+        newReaders.forEach { (name, _) ->
+            if (readers.containsKey(name)) {
+                newReaders[name] = readers[name]!!
             }
         }
 

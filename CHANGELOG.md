@@ -1,3 +1,7 @@
+## 0.1.4
+
+* Fix state related issues on Android
+
 ## 0.1.3
 
 * Use RECEIVER_EXPORTED for broadcast

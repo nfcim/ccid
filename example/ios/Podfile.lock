@@ -1,28 +1,29 @@
 PODS:
-  - ccid (0.1.1):
+  - ccid (0.1.5):
     - Flutter
+    - FlutterMacOS
   - Flutter (1.0.0)
   - integration_test (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - ccid (from `.symlinks/plugins/ccid/ios`)
+  - ccid (from `.symlinks/plugins/ccid/darwin`)
   - Flutter (from `Flutter`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
 
 EXTERNAL SOURCES:
   ccid:
-    :path: ".symlinks/plugins/ccid/ios"
+    :path: ".symlinks/plugins/ccid/darwin"
   Flutter:
     :path: Flutter
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  ccid: f196fb7dc141fa1ee3497ee6e5486a483f1ef9d1
+  ccid: 117b78a38ae7f96a49329c4ba014c20fa86a30be
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  integration_test: 13825b8a9334a850581300559b8839134b124670
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

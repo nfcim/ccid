@@ -1,20 +1,21 @@
 PODS:
-  - ccid (0.1.1):
+  - ccid (0.1.5):
+    - Flutter
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
 
 DEPENDENCIES:
-  - ccid (from `Flutter/ephemeral/.symlinks/plugins/ccid/macos`)
+  - ccid (from `Flutter/ephemeral/.symlinks/plugins/ccid/darwin`)
   - FlutterMacOS (from `Flutter/ephemeral`)
 
 EXTERNAL SOURCES:
   ccid:
-    :path: Flutter/ephemeral/.symlinks/plugins/ccid/macos
+    :path: Flutter/ephemeral/.symlinks/plugins/ccid/darwin
   FlutterMacOS:
     :path: Flutter/ephemeral
 
 SPEC CHECKSUMS:
-  ccid: 27d2241987cf780c752a5567dc07cceaa226fcde
+  ccid: 117b78a38ae7f96a49329c4ba014c20fa86a30be
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
 
 PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367

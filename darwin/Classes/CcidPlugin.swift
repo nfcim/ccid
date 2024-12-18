@@ -1,5 +1,8 @@
-import Cocoa
+#if os(iOS)
+import Flutter
+#elseif os(macOS)
 import FlutterMacOS
+#endif
 import CryptoTokenKit
 
 extension String {
@@ -27,19 +30,24 @@ extension Data {
 
 public class CcidPlugin: NSObject, FlutterPlugin {
     var cards: [String: TKSmartCard] = [:]
-    
+
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "ccid", binaryMessenger: registrar.messenger)
+        #if os(iOS)
+        let messenger = registrar.messenger()
+        #else
+        let messenger = registrar.messenger
+        #endif
+        let channel = FlutterMethodChannel(name: "ccid", binaryMessenger: messenger)
         let instance = CcidPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
-    
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "listReaders":
             let manager = TKSmartCardSlotManager.default
             result(manager?.slotNames ?? [])
-            
+
         case "connect":
             let reader = call.arguments as! String
             let manager = TKSmartCardSlotManager.default
@@ -53,7 +61,7 @@ public class CcidPlugin: NSObject, FlutterPlugin {
             } else {
                 result(FlutterError(code: "INVALID_READER", message: "Invalid reader name", details: nil))
             }
-            
+
         case "transceive":
             let args = call.arguments as! [String: Any?]
             let reader = args["reader"] as! String
@@ -73,12 +81,12 @@ public class CcidPlugin: NSObject, FlutterPlugin {
                     card?.endSession()
                 }
             }
-            
+
         case "disconnect":
             let reader = call.arguments as! String
             cards.removeValue(forKey: reader)
             result(nil)
-            
+
         default:
             result(FlutterMethodNotImplemented)
         }

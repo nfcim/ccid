@@ -1,3 +1,7 @@
+## 0.1.5
+
+* Use darwin shared library
+
 ## 0.1.4
 
 * Fix state related issues on Android

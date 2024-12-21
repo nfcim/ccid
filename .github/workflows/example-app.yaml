@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [apk, linux, windows, macos]
+        target: [apk, linux, windows, macos, ios]
         variant: [debug, release]
         include:
           - target: apk

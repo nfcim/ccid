@@ -1,3 +1,9 @@
+## 0.1.6
+
+* No library functional changes
+* Android: bump Kotlin to 2.1.0, lower JVM Target to 1.8
+* iOS / macOS: add support for Swift Package Manager
+
 ## 0.1.5
 
 * Use darwin shared library
@@ -8,7 +14,7 @@
 
 ## 0.1.3
 
-* Use RECEIVER_EXPORTED for broadcast
+* Use `RECEIVER_EXPORTED` for broadcast
 
 ## 0.1.2
 

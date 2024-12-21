@@ -6,8 +6,8 @@ import PackageDescription
 let package = Package(
     name: "ccid",
     platforms: [
-        .iOS("12.0"),
-        .macOS("10.14")
+        .iOS(.v13),
+        .macOS(.v10_13)
     ],
     products: [
         .library(name: "ccid", targets: ["ccid"])

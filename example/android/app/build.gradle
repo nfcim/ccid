@@ -27,12 +27,12 @@ android {
     compileSdk flutter.compileSdkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = JavaVersion.VERSION_1_8
     }
 
     sourceSets {
@@ -42,8 +42,7 @@ android {
     defaultConfig {
         applicationId "im.nfc.ccid.example"
         minSdkVersion 26
-        targetSdkVersion 34
-        compileSdkVersion 34
+        targetSdk flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

@@ -13,7 +13,7 @@ A Flutter plugin for CCID support on iOS and macOS.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'nfcim' => 'info@nfc.im' }
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'ccid/Sources/ccid/**/*.swift'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
 

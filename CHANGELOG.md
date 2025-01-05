@@ -1,3 +1,7 @@
+## 0.1.7
+
+* Downgrade to Flutter 3.24
+
 ## 0.1.6
 
 * No library functional changes

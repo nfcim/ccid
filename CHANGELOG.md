@@ -1,3 +1,7 @@
+## 0.1.8
+
+* Improve compatibility
+
 ## 0.1.7
 
 * Downgrade to Flutter 3.24

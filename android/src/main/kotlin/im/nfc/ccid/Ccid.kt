@@ -129,24 +129,42 @@ class Ccid(
 
     private fun receiveRawMessage(expectedSeq: Byte): CcidRdrToPcMessage {
         var retries = 3
-        var bytesRead: Int
+        var bytesRead = 0
+        var message: CcidRdrToPcMessage? = null
         val buffer = ByteArray(bulkIn.maxPacketSize)
-        do {
-            bytesRead = usbDeviceConnection.bulkTransfer(bulkIn, buffer, buffer.size, USB_TIMEOUT)
-        } while (bytesRead <= 0 && retries-- > 0)
+        var lastException: CcidException? = null
+        while (retries > 0) {
+            try {
+                bytesRead = usbDeviceConnection.bulkTransfer(bulkIn, buffer, buffer.size, USB_TIMEOUT)
+                if (bytesRead <= 0) {
+                    throw CcidException("Failed to read data")
+                }
+                if (bytesRead < HEADER_SIZE) {
+                    throw CcidException("Incorrect header")
+                }
+                if (buffer[0] != MESSAGE_TYPE_RDR_TO_PC_DATABLOCK) {
+                    throw CcidException("Unexpected message type")
+                }
+                message = CcidRdrToPcMessage.parseHeader(buffer)
+                if (message.seq != expectedSeq) {
+                    throw CcidException("Unexpected sequence number ${message.seq}, expected $expectedSeq")
+                }
+                lastException = null
+                break
+            } catch (e: CcidException) {
+                lastException = e
+                retries--
+                if (retries > 0) {
+                    Thread.sleep(100)
+                }
+            }
+        }
 
-        if (bytesRead < HEADER_SIZE) {
-            throw CcidException("Incorrect header")
-        }
-        if (buffer[0] != MESSAGE_TYPE_RDR_TO_PC_DATABLOCK) {
-            throw CcidException("Unexpected message type")
-        }
-        val message = CcidRdrToPcMessage.parseHeader(buffer)
-        if (message.seq != expectedSeq) {
-            throw CcidException("Unexpected sequence number ${message.seq}, expected $expectedSeq")
+        if (lastException != null) {
+            throw lastException
         }
 
-        val dataBuffer = ByteArray(message.length)
+        val dataBuffer = ByteArray(message!!.length)
         var bytesBuffered = bytesRead - HEADER_SIZE
         System.arraycopy(buffer, HEADER_SIZE, dataBuffer, 0, bytesBuffered)
 

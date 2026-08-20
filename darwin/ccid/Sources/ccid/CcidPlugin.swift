@@ -29,7 +29,14 @@ extension Data {
 }
 
 public class CcidPlugin: NSObject, FlutterPlugin {
+    private struct PendingTransceive {
+        let run: () -> Void
+        let cancel: () -> Void
+    }
+
     var cards: [String: TKSmartCard] = [:]
+    private var pendingTransceives: [String: [PendingTransceive]] = [:]
+    private var activeTransceiveReaders: Set<String> = []
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         #if os(iOS)
@@ -67,28 +74,81 @@ public class CcidPlugin: NSObject, FlutterPlugin {
             let reader = args["reader"] as! String
             let capdu = args["capdu"] as! String
             let capduData = capdu.hexadecimal!
-            let card = cards[reader]
-            card?.beginSession { (success, error) in
-                if !success {
-                    result(FlutterError(code: "BEGIN_SESSION_ERROR", message: error?.localizedDescription, details: nil))
-                }
-                card?.transmit(capduData) { (rapdu, error) in
-                    if let rapdu = rapdu {
-                        result(rapdu.hexadecimal)
-                    } else {
-                        result(FlutterError(code: "TRANSMIT_ERROR", message: error?.localizedDescription, details: nil))
-                    }
-                    card?.endSession()
-                }
+            guard let card = cards[reader] else {
+                result(FlutterError(code: "NO_CARD", message: "Card is not connected", details: nil))
+                return
             }
+            enqueueTransceive(
+                reader: reader,
+                run: {
+                    func finish(_ response: Any?) {
+                        card.endSession()
+                        DispatchQueue.main.async {
+                            result(response)
+                            self.startNextTransceive(reader: reader)
+                        }
+                    }
+
+                    card.beginSession { (success, error) in
+                        if !success {
+                            DispatchQueue.main.async {
+                                result(FlutterError(code: "BEGIN_SESSION_ERROR", message: error?.localizedDescription, details: nil))
+                                self.startNextTransceive(reader: reader)
+                            }
+                            return
+                        }
+                        card.transmit(capduData) { (rapdu, error) in
+                            if let rapdu = rapdu {
+                                finish(rapdu.hexadecimal)
+                            } else {
+                                finish(FlutterError(code: "TRANSMIT_ERROR", message: error?.localizedDescription, details: nil))
+                            }
+                        }
+                    }
+                },
+                cancel: {
+                    result(FlutterError(code: "NO_CARD", message: "Card was disconnected", details: nil))
+                }
+            )
 
         case "disconnect":
             let reader = call.arguments as! String
             cards.removeValue(forKey: reader)
+            let cancelledTransceives = pendingTransceives.removeValue(forKey: reader) ?? []
+            cancelledTransceives.forEach { $0.cancel() }
             result(nil)
 
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    private func enqueueTransceive(
+        reader: String,
+        run: @escaping () -> Void,
+        cancel: @escaping () -> Void
+    ) {
+        pendingTransceives[reader, default: []].append(
+            PendingTransceive(run: run, cancel: cancel)
+        )
+        if !activeTransceiveReaders.contains(reader) {
+            startNextTransceive(reader: reader)
+        }
+    }
+
+    private func startNextTransceive(reader: String) {
+        guard var queue = pendingTransceives[reader], !queue.isEmpty else {
+            activeTransceiveReaders.remove(reader)
+            return
+        }
+
+        activeTransceiveReaders.insert(reader)
+        let transceive = queue.removeFirst()
+        if queue.isEmpty {
+            pendingTransceives.removeValue(forKey: reader)
+        } else {
+            pendingTransceives[reader] = queue
+        }
+        transceive.run()
     }
 }

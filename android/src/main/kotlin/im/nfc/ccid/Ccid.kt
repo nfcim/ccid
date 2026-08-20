@@ -2,15 +2,22 @@ package im.nfc.ccid
 
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
+import android.hardware.usb.UsbInterface
 
 class Ccid(
     private val usbDeviceConnection: UsbDeviceConnection,
+    private val usbInterface: UsbInterface,
     private val bulkIn: UsbEndpoint,
     private val bulkOut: UsbEndpoint
 ) {
     private var currentSeq = 0.toByte()
+    private var closed = false
+    var maxApduLength = MAX_CAPDU_LENGTH
+        private set
 
+    @Synchronized
     fun iccPowerOn(): ByteArray {
+        if (closed) throw CcidException("Reader is closed")
         val seq = currentSeq++
         val command = byteArrayOf(
             MESSAGE_TYPE_PC_TO_RDR_ICCPOWERON,
@@ -25,7 +32,9 @@ class Ccid(
         return response.data
     }
 
+    @Synchronized
     fun iccPowerOff() {
+        if (closed) throw CcidException("Reader is closed")
         val seq = currentSeq++
         val command = byteArrayOf(
             MESSAGE_TYPE_PC_TO_RDR_ICCPOWEROFF,
@@ -37,7 +46,17 @@ class Ccid(
         sendCcidPcToRdrMessage(command)
     }
 
+    @Synchronized
+    fun close() {
+        if (closed) return
+        closed = true
+        usbDeviceConnection.releaseInterface(usbInterface)
+        usbDeviceConnection.close()
+    }
+
+    @Synchronized
     fun xfrBlock(apdu: ByteArray): ByteArray {
+        if (closed) throw CcidException("Reader is closed")
         val seq = currentSeq++
         val command = byteArrayOf(
             MESSAGE_TYPE_PC_TO_RDR_XFRBLOCK,
@@ -65,21 +84,30 @@ class Ccid(
     }
 
 
-    fun getDescriptor(interfaceIdx: Int): CcidDescriptor? {
+    fun getDescriptor(interfaceNumber: Int): CcidDescriptor? {
         val rawDescriptors = usbDeviceConnection.rawDescriptors
         var byteIndex = 0
         var currInterfaceNumber = 0
 
-        while (byteIndex < rawDescriptors.size) {
+        while (byteIndex + 1 < rawDescriptors.size) {
             val descriptorLength = rawDescriptors[byteIndex].toInt() and 0xff
             val descriptorType = rawDescriptors[byteIndex + 1].toInt() and 0xff
+            if (descriptorLength < 2 || byteIndex + descriptorLength > rawDescriptors.size) {
+                throw CcidException("Invalid USB descriptor length")
+            }
 
             // Check if it's an interface descriptor
             if (descriptorType == 0x04) {
+                if (descriptorLength < 3) {
+                    throw CcidException("Invalid interface descriptor")
+                }
                 currInterfaceNumber = rawDescriptors[byteIndex + 2].toInt() and 0xff
             }
             // Check if it's a CCID class descriptor and the interface number matches
-            else if (descriptorType == 0x21 && currInterfaceNumber == interfaceIdx) {
+            else if (descriptorType == 0x21 && currInterfaceNumber == interfaceNumber) {
+                if (descriptorLength < CCID_DESCRIPTOR_MIN_LENGTH) {
+                    throw CcidException("Invalid CCID descriptor")
+                }
                 val dwProtocols = (rawDescriptors[byteIndex + 6].toInt() and 0xff) or
                         ((rawDescriptors[byteIndex + 7].toInt() and 0xff) shl 8) or
                         ((rawDescriptors[byteIndex + 8].toInt() and 0xff) shl 16) or
@@ -92,13 +120,26 @@ class Ccid(
                         ((rawDescriptors[byteIndex + 29].toInt() and 0xff) shl 8) or
                         ((rawDescriptors[byteIndex + 30].toInt() and 0xff) shl 16) or
                         ((rawDescriptors[byteIndex + 31].toInt() and 0xff) shl 24)
+                val dwMaxMessageLength = (rawDescriptors[byteIndex + 44].toLong() and 0xff) or
+                        ((rawDescriptors[byteIndex + 45].toLong() and 0xff) shl 8) or
+                        ((rawDescriptors[byteIndex + 46].toLong() and 0xff) shl 16) or
+                        ((rawDescriptors[byteIndex + 47].toLong() and 0xff) shl 24)
+                if (dwMaxMessageLength <= HEADER_SIZE) {
+                    throw CcidException("Invalid maximum CCID message length")
+                }
                 val levelOfExchange = when ((dwFeatures shr 16) and 0xFF) {
                     0x01 -> LevelOfExchange.TPDU
                     0x02 -> LevelOfExchange.ShortAPDU
                     0x04 -> LevelOfExchange.ExtendedAPDU
                     else -> throw CcidException("Unknown level of exchange")
                 }
-                return CcidDescriptor(dwProtocols.toByte(), levelOfExchange, dwMaxIFSD)
+                maxApduLength = minOf(
+                    dwMaxMessageLength - HEADER_SIZE,
+                    MAX_CAPDU_LENGTH.toLong()
+                ).toInt()
+                return CcidDescriptor(
+                    dwProtocols.toByte(), levelOfExchange, dwMaxIFSD, dwMaxMessageLength
+                )
             }
 
             byteIndex += descriptorLength
@@ -164,12 +205,19 @@ class Ccid(
             throw lastException
         }
 
-        val dataBuffer = ByteArray(message!!.length)
+        val response = message ?: throw CcidException("Missing response header")
+        val dataBuffer = ByteArray(response.length)
         var bytesBuffered = bytesRead - HEADER_SIZE
+        if (bytesBuffered > response.length) {
+            throw CcidException("Response exceeds declared length")
+        }
         System.arraycopy(buffer, HEADER_SIZE, dataBuffer, 0, bytesBuffered)
 
-        while (bytesBuffered < message.length) {
-            bytesRead = usbDeviceConnection.bulkTransfer(bulkIn, buffer, buffer.size, USB_TIMEOUT)
+        while (bytesBuffered < response.length) {
+            val remaining = response.length - bytesBuffered
+            bytesRead = usbDeviceConnection.bulkTransfer(
+                bulkIn, buffer, minOf(buffer.size, remaining), USB_TIMEOUT
+            )
             if (bytesRead <= 0) {
                 throw CcidException("Failed to read data")
             }
@@ -177,11 +225,13 @@ class Ccid(
             bytesBuffered += bytesRead
         }
 
-        return message.withData(dataBuffer)
+        return response.withData(dataBuffer)
     }
 
     companion object {
         private const val HEADER_SIZE = 10
+        private const val CCID_DESCRIPTOR_MIN_LENGTH = 48
+        private const val MAX_CAPDU_LENGTH = 1024 * 1024
         private const val USB_TIMEOUT = 5000
 
         private const val MESSAGE_TYPE_PC_TO_RDR_ICCPOWERON = 0x62.toByte()
@@ -230,9 +280,19 @@ data class CcidRdrToPcMessage(
 
     companion object {
         fun parseHeader(data: ByteArray): CcidRdrToPcMessage {
+            if (data.size < 10) {
+                throw CcidException("Incorrect header")
+            }
+            val length = (data[1].toLong() and 0xff) or
+                    ((data[2].toLong() and 0xff) shl 8) or
+                    ((data[3].toLong() and 0xff) shl 16) or
+                    ((data[4].toLong() and 0xff) shl 24)
+            if (length > MAX_MESSAGE_LENGTH) {
+                throw CcidException("CCID response is too large: $length bytes")
+            }
             return CcidRdrToPcMessage(
                 data[0],
-                (data[1].toInt() and 0xff) or ((data[2].toInt() and 0xff) shl 8) or ((data[3].toInt() and 0xff) shl 16) or ((data[4].toInt() and 0xff) shl 24),
+                length.toInt(),
                 data[5],
                 data[6],
                 data[7],
@@ -241,5 +301,7 @@ data class CcidRdrToPcMessage(
                 byteArrayOf()
             )
         }
+
+        private const val MAX_MESSAGE_LENGTH = 1024 * 1024L
     }
 }

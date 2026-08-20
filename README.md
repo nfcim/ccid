@@ -9,7 +9,7 @@ A Flutter plugin for reading and writing smart cards using the CCID protocol wit
 
 ### Android
 
-This plugin uses AGP 8.7, thus requires Gradle 8.7+ (which needs Java 17+ to run).
+This plugin uses AGP 8.13, thus requires Gradle 8.14+ and Java 17+ to run.
 
 ### Linux / Windows
 

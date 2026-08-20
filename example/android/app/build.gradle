@@ -25,6 +25,7 @@ if (flutterVersionName == null) {
 android {
     namespace "im.nfc.ccid.example"
     compileSdk flutter.compileSdkVersion
+    ndkVersion "28.2.13676358"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

@@ -76,13 +76,13 @@ jobs:
       if: ${{ matrix.target == 'apk' && matrix.variant == 'debug' }}
       run: flutter test
       working-directory: example/
+    - name: Run flutter ${{ matrix.variant }} build on ${{ matrix.target }}
+      run: flutter build ${{ matrix.target }} --${{ matrix.variant }} ${{ matrix.build-args }} --verbose
+      working-directory: example/
     - name: Run Android unit tests
       if: ${{ matrix.target == 'apk' && matrix.variant == 'debug' }}
       run: ./gradlew :ccid:testDebugUnitTest
       working-directory: example/android/
-    - name: Run flutter ${{ matrix.variant }} build on ${{ matrix.target }}
-      run: flutter build ${{ matrix.target }} --${{ matrix.variant }} ${{ matrix.build-args }} --verbose
-      working-directory: example/
 
     # upload build artifacts
     - uses: actions/upload-artifact@v4

@@ -9,6 +9,8 @@ import android.hardware.usb.*
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import io.flutter.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -35,7 +37,9 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler {
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == ACTION_USB_PERMISSION) {
-                val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                val device = IntentCompat.getParcelableExtra(
+                    intent, UsbManager.EXTRA_DEVICE, UsbDevice::class.java
+                )
                 val deviceName = intent.getStringExtra(EXTRA_DEVICE_NAME)
                 val interfaceIdx = intent.getIntExtra(EXTRA_INTERFACE_INDEX, -1)
                 if (deviceName == null || interfaceIdx < 0) {
@@ -81,7 +85,9 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler {
                 startConnection(readerEntry.value, device, pendingConnection)
             }
             if (intent.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
-                val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                val device = IntentCompat.getParcelableExtra(
+                    intent, UsbManager.EXTRA_DEVICE, UsbDevice::class.java
+                )
                 device?.let { detachedDevice ->
                     pendingConnections.keys
                         .filter { it.deviceName == detachedDevice.deviceName }
@@ -118,11 +124,9 @@ class CcidPlugin : FlutterPlugin, MethodCallHandler {
         val filter = IntentFilter(ACTION_USB_PERMISSION).apply {
             addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(usbReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            context.registerReceiver(usbReceiver, filter)
-        }
+        ContextCompat.registerReceiver(
+            context, usbReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         receiverRegistered = true
     }
 
